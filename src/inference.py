@@ -22,7 +22,17 @@ class Predictor:
 
     def predict_proba(self, data: Union[dict, list]) -> List[float]:
         df = self._to_df(data)
-        df = df[self.feature_cols]  # align columns
+        
+        # Check for missing required features
+        missing_features = set(self.feature_cols) - set(df.columns)
+        if missing_features:
+            raise ValueError(
+                f"Missing required features: {sorted(missing_features)}. "
+                f"Please provide all required features."
+            )
+        
+        # Align columns to match training feature order
+        df = df[self.feature_cols]
         probs = self.model.predict_proba(df)[:, 1].tolist()
         return probs
 
